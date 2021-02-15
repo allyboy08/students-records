@@ -61,7 +61,7 @@ def delete_student(student_id):
     try:
         with sqlite3.connect('database.db') as con:
             cur = con.cursor()
-            cur.execute("DELETE FROM student WHERE id=" + str(student_id))
+            cur.execute("DELETE FROM students WHERE id=" + str(student_id))
             con.commit()
             msg = "A record was deleted successfully from the database."
     except Exception as e:
