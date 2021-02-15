@@ -6,7 +6,7 @@ def init_sqlite_db():
     conn = sqlite3.connect('database.db')
     print("Opened database successfully")
 
-    conn.execute('CREATE TABLE IF NOT EXISTS students (name TEXT, addrs TEXT, city TEXT, pin TEXT)')
+    conn.execute('CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, addr TEXT, city TEXT, pin TEXT)')
     print("Table created successfully")
     conn.close()
 
@@ -29,10 +29,10 @@ def add_new_record():
                 cur = con.cursor()
                 cur.execute("INSERT INTO students (name, addr, city, pin) VALUES (?, ?, ?, ?)", (name, addr, city, pin))
                 con.commit()
-                msg = "Record successfully added."
+                msg = name + "Record successfully added."
         except Exception as e:
-                con.rollback()
-                msg = "Error occurred in insert operation: " + e
+            con.rollback()
+            msg = "Error occurred in insert operation: " + str(e)
         finally:
             con.close()
             return render_template('result.html', msg=msg)
@@ -47,11 +47,29 @@ def show_records():
             records = cur.fetchall()
     except Exception as e:
         con.rollback()
-        print("There was am error fetching results from the database.")
+        print("There was am error fetching results from the database." + str(e))
     finally:
         con.close()
         return render_template('records.html', records=records)
 
+
+
+@app.route('/delete-student/<int:student_id>/', methods=["GET"])
+def delete_student(student_id):
+
+    msg = None
+    try:
+        with sqlite3.connect('database.db') as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM student WHERE id=" + str(student_id))
+            con.commit()
+            msg = "A record was deleted successfully from the database."
+    except Exception as e:
+        con.rollback()
+        msg = "Error occurred when deleting a student in the database: " + str(e)
+    finally:
+        con.close()
+        return render_template('delete-success.html', msg=msg)
 
 if __name__=='__main__':
     app.run(debug=True)
